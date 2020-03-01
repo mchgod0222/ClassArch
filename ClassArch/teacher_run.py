@@ -10,9 +10,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import transforms
 
-from ClassArch.dataset import UnlabeledModelNet40Dataset
-from ClassArch.model.PointNet import PointNet
-from ClassArch.utils import data_utils
+from dataset import UnlabeledModelNet40Dataset
+from model.rscnn_ssn_cls import RSCNN_SSN
+from utils import data_utils
 
 
 test_transforms = transforms.Compose([
@@ -25,14 +25,14 @@ print(device)
 if __name__ == '__main__':
     torch.multiprocessing.freeze_support()
     torch.cuda.empty_cache()
-    torch.cuda.reset_max_memory_allocated(device=device)
+    # torch.cuda.reset_max_memory_allocated(device=device)
     ngpus_per_node = torch.cuda.device_count()
     target_folder = './data/'
 
-    ds_test = UnlabeledModelNet40Dataset(2500, 'data/', test_transforms, 'unlabeled')
+    ds_test = UnlabeledModelNet40Dataset(1024, 'data/', test_transforms, 'unlabeled')
 
     # model_loc = './PointNet/final'
-    model_loc = './epoch_save_model/PointNet_ckpt_0'
+    model_loc = './epoch_save_model/RSCNN_SSN_ckpt_121'
     model = torch.load(model_loc + '.pt')
     model = model.cuda()
     model.eval()
@@ -53,10 +53,8 @@ if __name__ == '__main__':
 
     f = h5py.File('data/modelnet40/ply_data_unlabeled0.h5')
     data  = f['data'][:]
-    print(f.keys())
     
     final_label = h5py.File('data/modelnet40/ply_data_labeled0.h5', 'w')
-    print(final_label)
     final_label['data'] = data
     final_label['label'] = label
 
